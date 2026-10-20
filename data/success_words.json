@@ -1,0 +1,57 @@
+{
+  "sqli": {
+    "success_patterns": ["you have an error in your sql syntax", "mysql_fetch", "mysqli", "pg_query", "postgresql", "sqlite", "ora-\\d{4,5}", "unclosed quotation", "quoted string not properly terminated", "sql command not properly ended", "warning: mysqli", "warning: mysql", "fatal error.*mysql", "unterminated quoted string", "sqlstate\\[", "odbc sql server", "microsoft ole db", "sqlite/jdbcdriver", "syntax error at or near"],
+    "fail_patterns": ["invalid input", "invalid parameter", "bad request", "please try again", "not found", "unknown error", "internal server error", "syntax error, unexpected", "unrecognized token"],
+    "confirm_trigger": "error output leaked database internals"
+  },
+  "xss": {
+    "success_patterns": ["<script>alert\\(1\\)</script>", "onerror=alert\\(1\\)", "onload=alert\\(1\\)", "javascript:alert\\(1\\)", "<svg/onload", "<img src=x onerror", "onmouseover=\"alert"],
+    "fail_patterns": ["&lt;script&gt;", "&quot;", "&#x3c;", "&#60;", "&amp;lt;", "sanitized", "invalid input", "rejected"],
+    "confirm_trigger": "payload reflected without HTML entity encoding"
+  },
+  "lfi": {
+    "success_patterns": ["root:.*:0:0:", "daemon:.*:", "www-data:", "nobody:.*:", "\\[boot loader\\]", "\\[extensions\\]", "\\[fonts\\]", "DOCUMENT_ROOT=", "PATH=/", "APP_KEY=", "DB_PASSWORD="],
+    "fail_patterns": ["not found", "no such file", "permission denied", "warning:.*failed to open stream", "warning:.*include", "open_basedir restriction"],
+    "confirm_trigger": "system file content returned"
+  },
+  "rce": {
+    "success_patterns": ["uid=\\d+\\(.*\\)", "gid=\\d+\\(.*\\)", "groups=\\d+", "nt authority\\\\", "linux \\S+ \\d", "darwin kernel", "www-data", "apache", "nginx", "RCE_MARKER", "root:x:0:0:"],
+    "fail_patterns": ["command not found", "not recognized", "no such file or directory", "permission denied", "sh: 1:", "access is denied"],
+    "confirm_trigger": "command output reflected"
+  },
+  "ssrf": {
+    "success_patterns": ["root:.*:0:0:", "ssh-", "meta-data", "instance-id", "ami-id", "AccessDenied", "redis_version", "computeMetadata", "SecurityCredentials", "amazonaws.com", "EC2_INSTANCE", "forbidden", "Connection refused"],
+    "fail_patterns": ["invalid url", "not allowed", "blocked", "refused by policy", "URL not permitted"],
+    "confirm_trigger": "internal target reachable or metadata returned"
+  },
+  "redirect": {
+    "success_patterns": ["location: https?://evil", "location: //evil", "location: https?://google"],
+    "fail_patterns": ["invalid redirect", "not allowed"],
+    "confirm_trigger": "Location header redirects to attacker-controlled domain"
+  },
+  "crlf": {
+    "success_patterns": ["crlf=injected", "x-injected:", "set-cookie: crlf"],
+    "fail_patterns": ["invalid header", "malformed"],
+    "confirm_trigger": "attacker header reflected in response headers"
+  },
+  "ssti": {
+    "success_patterns": ["\\b49\\b", "7777777", "SECRET_KEY", "uid=\\d+", "gid=\\d+", "Jinja2", "Twig"],
+    "fail_patterns": ["invalid", "template error", "syntax error", "{7*7}"],
+    "confirm_trigger": "template expression evaluated"
+  },
+  "xxe": {
+    "success_patterns": ["root:.*:0:0:", "daemon:x:", "\\[boot loader\\]", "\\[fonts\\]"],
+    "fail_patterns": ["xml parse error", "invalid xml", "no such file", "entity.*disabled"],
+    "confirm_trigger": "external entity expanded"
+  },
+  "auth": {
+    "success_patterns": ["access granted", "welcome", "login successful", "dashboard", "signed in", "authenticated", "home", "profile", "logout"],
+    "fail_patterns": ["access denied", "invalid credentials", "incorrect password", "wrong username", "wrong password", "authentication failed", "login failed", "unauthorized", "forbidden", "invalid login", "try again", "denied"],
+    "confirm_trigger": "login succeeded with weak credentials"
+  },
+  "sensitive_file": {
+    "success_patterns": ["DB_PASSWORD", "DB_USER", "APP_KEY", "SECRET_KEY", "API_KEY", "password", "username", "token", "mysql:", "postgres:", "-----BEGIN", "[core]", "[database]", "define\\(", "<?php"],
+    "fail_patterns": ["404", "not found", "access denied", "forbidden", "unauthorized"],
+    "confirm_trigger": "sensitive file served with real content"
+  }
+}
